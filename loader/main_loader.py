@@ -48,6 +48,9 @@ class Loader:
     def get_post(self, shortcode: str):
         return Post.from_shortcode(self.instance.context, get_post_shortcode(shortcode))
 
+    def get_log(self):
+        return self.instance.context.error_log
+
     def download_post(self, shortcode: str, dir_name: str = None):
         """
         Download post by shortcode
@@ -58,8 +61,8 @@ class Loader:
         shortcode = get_post_shortcode(shortcode)
         post = self.get_post(shortcode)
         if not dir_name:
-            dir_name = Path(self.base_download_path + post.owner_username)
-        return self.instance.download_post(post, target=dir_name)
+            dir_name = post.owner_username
+        return self.instance.download_post(post, target=Path(self.base_download_path + dir_name))
 
     def download_all_posts(self, username: str, dir_name: str = None):
         """
