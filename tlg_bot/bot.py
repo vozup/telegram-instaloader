@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import telebot
 from telebot import types
 from common.config import Config
@@ -35,6 +38,13 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id, f"I still do not know how to download files from {full_site}")
         else:
             bot.send_message(message.from_user.id, f"Unknown site {full_site}")
+    elif message.text == "Show available files":
+        file_list = os.listdir(Path(L.base_download_path + message.from_user.username))
+        if file_list:
+            bot.send_message(message.from_user.id, f"You have {len(file_list)} downloaded files")
+            bot.send_message(message.from_user.id, '\n'.join(file_list))
+        else:
+            bot.send_message(message.from_user.id, "You dont have downloaded files")
     else:
         bot.send_message(message.from_user.id, "Unknown command")
 
