@@ -39,17 +39,16 @@ class Loader:
         save_metadata = Config().get_instaloader_param('save_metadata')
         post_metadata_txt_pattern = Config().get_instaloader_param('post_metadata_txt_pattern')
         base_download_path = Config().get_instaloader_param('base_download_path')
+        filename_pattern = Config().get_instaloader_param('filename_pattern')
 
         self.instance = Instaloader(download_video_thumbnails=download_video_thumbnails,
                                     save_metadata=save_metadata,
-                                    post_metadata_txt_pattern=post_metadata_txt_pattern)
+                                    post_metadata_txt_pattern=post_metadata_txt_pattern,
+                                    filename_pattern=filename_pattern)
         self.base_download_path = base_download_path
 
     def get_post(self, shortcode: str):
         return Post.from_shortcode(self.instance.context, get_post_shortcode(shortcode))
-
-    def get_log(self):
-        return self.instance.context.error_log
 
     def download_post(self, shortcode: str, dir_name: str = None):
         """

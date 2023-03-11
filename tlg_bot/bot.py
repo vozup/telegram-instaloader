@@ -6,11 +6,11 @@ from telebot import types
 from common.config import Config
 from common.common import site_name
 from loader.main_loader import Loader
+from os.path import sep
 
 token = Config().get_telegram_token()
 bot = telebot.TeleBot(token)
 L = Loader()
-
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -30,8 +30,10 @@ def get_text_messages(message):
             post = L.get_post(message.text)
             post_type = post.typename
             author = post.owner_username
+            shortcode = post.shortcode
             if L.download_post(message.text, message.from_user.username):
                 bot.send_message(message.from_user.id, f"{post_type} by {author} downloaded!")
+                send_files(message.from_user, post_type, shortcode)
             else:
                 bot.send_message(message.from_user.id, "Maybe file already exist")
         elif site == 'tiktok':
@@ -55,6 +57,27 @@ def get_text_messages(message):
     #     btn3 = types.KeyboardButton('Советы по оформлению публикации')
     #     markup.add(btn1, btn2, btn3)
     #     bot.send_message(message.from_user.id, '❓ Задайте интересующий вас вопрос', reply_markup=markup)  # ответ бота
+
+
+def send_files(message_from_user, media_type: str, shortcode: str):
+    """
+    Determination of the type of uploaded post
+    :param media_type: GraphVideo GraphImage GraphSidecar
+    :param message_from_user:
+    :param shortcode: shortcode of post to search for a file name
+    :return:
+    """
+    file_path = L.base_download_path + message_from_user.username + sep + shortcode
+    if media_type == "GraphVideo":
+        video = open(file_path + '.mp4', 'rb')
+        bot.send_video(message_from_user.id, video)
+    elif media_type == "GraphImage":
+        image = open(file_path + '.jpg', 'rb')
+        bot.send_photo(message_from_user.id, image)
+    elif media_type == "GraphSidecar":
+        pass
+    else:
+        bot.send_message(message_from_user.id, "Unknown media type")
 
 
 def pooling():
