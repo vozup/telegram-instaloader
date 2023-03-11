@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from instaloader import *
 
 
@@ -25,9 +27,11 @@ def get_shortcode(http_link: str):
 
 class Loader:
     def __init__(self, download_video_thumbnails=False, save_metadata=False,
-                 post_metadata_txt_pattern=""):
-        self.instance = Instaloader(download_video_thumbnails=download_video_thumbnails, save_metadata=save_metadata,
+                 post_metadata_txt_pattern="", base_download_path="D:\\InstaDownloads\\"):
+        self.instance = Instaloader(download_video_thumbnails=download_video_thumbnails,
+                                    save_metadata=save_metadata,
                                     post_metadata_txt_pattern=post_metadata_txt_pattern)
+        self.base_download_path = base_download_path
 
     def get_post(self, shortcode: str):
         return Post.from_shortcode(self.instance.context, get_shortcode(shortcode))
@@ -41,9 +45,8 @@ class Loader:
         """
         shortcode = get_shortcode(shortcode)
         post = self.get_post(shortcode)
-
         if not dir_name:
-            dir_name = post.owner_username
+            dir_name = Path(self.base_download_path + post.owner_username)
         return self.instance.download_post(post, target=dir_name)
 
     def download_all_posts(self, username: str, dir_name: str = None):
@@ -54,7 +57,7 @@ class Loader:
         :return:
         """
         if not dir_name:
-            dir_name = username
+            dir_name = Path(self.base_download_path + username)
         profile = Profile.from_username(self.instance.context, username)
         print(f"{profile.username} total posts: {profile.get_posts().count}")
         for post in profile.get_posts():
